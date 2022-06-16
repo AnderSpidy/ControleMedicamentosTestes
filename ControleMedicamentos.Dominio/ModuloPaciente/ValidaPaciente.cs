@@ -9,6 +9,13 @@ namespace ControleMedicamentos.Dominio.ModuloPaciente
 {
     public class ValidaPaciente : AbstractValidator<Paciente>
     {
-        public ValidaPaciente() { }
+        public ValidaPaciente() 
+        {
+            RuleFor(x => x.Nome)
+           .NotNull().NotEmpty().MinimumLength(3);
+
+            RuleFor(x => x.CartaoSUS)
+            .NotNull().NotEmpty().MinimumLength(3);
+        }
     }
 }

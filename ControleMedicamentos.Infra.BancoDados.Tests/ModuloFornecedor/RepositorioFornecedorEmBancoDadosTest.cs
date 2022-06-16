@@ -123,13 +123,13 @@ namespace ControleMedicamentos.Infra.BancoDados.Tests.ModuloFornecedor
         public void Deve_selecionar_todos_os_fornecedores()
         {
             //arrange
-            var paciente1 = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
-            var paciente2 = new Fornecedor("Carlinhos", "40028922", "carlinhos@gmail.com", "Lages", "Santa Catarina");
-            var paciente3 = new Fornecedor("Baptista", "4989996523", "baptista@gmail.com", "Porto Alegre", "Rio Grande do Sul");
+            var fornecedor1 = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
+            var fornecedor2 = new Fornecedor("Carlinhos", "40028922", "carlinhos@gmail.com", "Lages", "Santa Catarina");
+            var fornecedor3 = new Fornecedor("Baptista", "4989996523", "baptista@gmail.com", "Porto Alegre", "Rio Grande do Sul");
             var repositorio = new RepositorioFornecedorEmBancoDados();
-            repositorio.Inserir(paciente1);
-            repositorio.Inserir(paciente2);
-            repositorio.Inserir(paciente3);
+            repositorio.Inserir(fornecedor1);
+            repositorio.Inserir(fornecedor2);
+            repositorio.Inserir(fornecedor3);
 
 
             //action

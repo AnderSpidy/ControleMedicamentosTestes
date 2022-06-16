@@ -17,8 +17,4 @@
     <ProjectReference Include="..\ControleMedicamentos.Infra.BancoDados\ControleMedicamentos.Infra.BancoDados.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ModuloRequisicao\" />
-  </ItemGroup>
-
 </Project>

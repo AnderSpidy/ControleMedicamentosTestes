@@ -29,5 +29,10 @@ namespace ControleMedicamentos.Dominio.ModuloMedicamento
         }
         public Medicamento() { }
 
+        public override string ToString()
+        {
+            return $"{Nome}{" - "}{Descricao}{" - "}{Lote}";
+        }
+
     }
 }

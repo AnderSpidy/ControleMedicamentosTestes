@@ -1,5 +1,12 @@
-﻿using System;
+﻿using ControleMedicamentos.Dominio.ModuloFornecedor;
+using ControleMedicamentos.Dominio.ModuloFuncionario;
+using ControleMedicamentos.Dominio.ModuloMedicamento;
+using ControleMedicamentos.Dominio.ModuloPaciente;
+using ControleMedicamentos.Dominio.ModuloRequisicao;
+using FluentValidation.Results;
+using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,315 +22,277 @@ namespace ControleMedicamentos.Infra.BancoDados.ModuloRequisicao
             "Pooling=False";
 
         private const string sqlInserir =
-          @"INSERT INTO [TBTESTE]
+          @"INSERT INTO [TBREQUISICAO]
                 (
-                    [TITULO],                    
-                    [DATAGERACAO],
-                    [QUANTIDADEQUESTOES],
-                    [PROVAO],
-                    [MATERIA_NUMERO],
-                    [DISCIPLINA_NUMERO]
+                    [FUNCIONARIO_ID],                    
+                    [PACIENTE_ID],
+                    [MEDICAMENTO_ID],
+                    [QUANTIDADEMEDICAMENTO],
+                    [DATA]
+                    
 	            )
 	            VALUES
                 (
-                    @TITULO,
-                    @DATAGERACAO,
-                    @QUANTIDADEQUESTOES,
-                    @PROVAO,
-                    @MATERIA_NUMERO,
-                    @DISCIPLINA_NUMERO
+                    @FUNCIONARIO_ID,
+                    @PACIENTE_ID,
+                    @MEDICAMENTO_ID,
+                    @QUANTIDADEMEDICAMENTO,
+                    @DATA
                 );SELECT SCOPE_IDENTITY();";
 
-        private const string sqlAdicionarQuestao =
-          @"INSERT INTO [TBTESTE_TBQUESTAO]
-                (
-                    [TESTE_NUMERO],                    
-                    [QUESTAO_NUMERO]
-	            )
-	            VALUES
-                (
-                    @TESTE_NUMERO,
-                    @QUESTAO_NUMERO
-                );";
+        private const string sqlEditar =
+           @" UPDATE [TBREQUISICAO]
+                    SET 
+                        [FUNCIONARIO_ID] = @FUNCIONARIO_ID, 
+                        [PACIENTE_ID] = @PACIENTE_ID, 
+                        [MEDICAMENTO_ID] = @MEDICAMENTO_ID,
+                        [QUANTIDADEMEDICAMENTO] = @QUANTIDADEMEDICAMENTO, 
+                        [DATA] = @DATA
+
+
+                    WHERE [ID] = @ID";
+
+        private const string sqlExcluir =
+            @"DELETE FROM [TBREQUISICAO] 
+
+
+                WHERE [ID] = @ID";
+
+        private const string sqlSelecionarPorNumero =
+            @"SELECT 
+                REQUISICAO.[ID],       
+                REQUISICAO.[FUNCIONARIO_ID],
+                REQUISICAO.[PACIENTE_ID],
+                REQUISICAO.[MEDICAMENTO_ID],             
+                REQUISICAO.[QUANTIDADEMEDICAMENTO],      
+                REQUISICAO.[DATA],   
+                FUNCIONARIO.[NOME] AS FUNCIONARIO_NOME,              
+                FUNCIONARIO.[LOGIN],                    
+                FUNCIONARIO.[SENHA], 
+                PACIENTE.[NOME] AS PACIENTE_NOME,
+                PACIENTE.[CARTAOSUS],
+                MEDICAMENTO.[NOME] AS MEDICAMENTO_NOME,
+                MEDICAMENTO.[DESCRICAO],
+                MEDICAMENTO.[LOTE],
+                MEDICAMENTO.[VALIDADE],
+                MEDICAMENTO.[QUANTIDADEDISPONIVEL]
+            FROM
+                [TBREQUISICAO] AS REQUISICAO INNER JOIN [TBFUNCIONARIO] AS FUNCIONARIO
+                    ON REQUISICAO.FUNCIONARIO_ID = FUNCIONARIO.ID
+                INNER JOIN [TBPACIENTE] AS PACIENTE 
+                    ON REQUISICAO.PACIENTE_ID = PACIENTE.ID
+                INNER JOIN [TBMEDICAMENTO] AS MEDICAMENTO
+                    ON REQUISICAO.MEDICAMENTO_ID = MEDICAMENTO.ID
+            WHERE
+                REQUISICAO.[ID] = @ID
+                ";
+
 
         private const string sqlSelecionarTodos =
              @"SELECT        
-	                T.NUMERO,
-	                T.TITULO, 
-	                T.DATAGERACAO, 
-	                T.PROVAO, 	
- 	                T.QUANTIDADEQUESTOES,
-	                D.NUMERO DISCIPLINA_NUMERO, 
-	                D.NOME DISCIPLINA_NOME,
-	
-	                M.NUMERO MATERIA_NUMERO, 
-	                M.NOME MATERIA_NOME,
-	                M.SERIE MATERIA_SERIE 	
+	                REQUI.ID,
+	                REQUI.FUNCIONARIO_ID, 
+	                REQUI.PACIENTE_ID, 
+	                REQUI.MEDICAMENTO_ID, 	
+ 	                REQUI.QUANTIDADEMEDICAMENTO,
+	                REQUI.DATA, 
+	                FUNC.NOME AS FUNCIONARIO_NOME,
+	                FUNC.LOGIN, 
+	                FUNC.SENHA,
+	                PACIENTE.NOME AS PACIENTE_NOME,
+                    PACIENTE.CARTAOSUS,
+                    MEDIC.NOME AS MEDICAMENTO_NOME,
+                    MEDIC.DESCRICAO,
+                    MEDIC.LOTE,
+                    MEDIC.VALIDADE,
+                    MEDIC.QUANTIDADEDISPONIVEL,
+                    
                 FROM  
-	                TBTESTE T INNER JOIN TBDISCIPLINA D 
+	                TBREQUISICAO AS REQUI
+
+                INNER JOIN TBFUNCIONARIO AS FUNC
                 ON 
-	                T.DISCIPLINA_NUMERO = D.NUMERO LEFT JOIN TBMATERIA M 
+                    REQUI.FUNCIONARIO_ID = FUNCIONARIO.ID
+
+                INNER JOIN TBPACIENTE AS PACIENTE
                 ON 
-	                T.MATERIA_NUMERO = M.NUMERO";
+                    REQUI.PACIENTE_ID = PACIENTE.ID
 
-        private const string sqlSelecionarPorNumero =
-            @"SELECT        
-	                T.NUMERO,
-	                T.TITULO, 
-	                T.DATAGERACAO, 
-	                T.PROVAO, 	
- 	                T.QUANTIDADEQUESTOES,
-	                D.NUMERO DISCIPLINA_NUMERO, 
-	                D.NOME DISCIPLINA_NOME,
-	
-	                M.NUMERO MATERIA_NUMERO, 
-	                M.NOME MATERIA_NOME,
-	                M.SERIE MATERIA_SERIE 	
-                FROM  
-	                TBTESTE T INNER JOIN TBDISCIPLINA D 
-                ON 
-	                T.DISCIPLINA_NUMERO = D.NUMERO LEFT JOIN TBMATERIA M 
-                ON 
-	                T.MATERIA_NUMERO = M.NUMERO
-                WHERE 
-	                T.[NUMERO] = @NUMERO";
+                INNER JOIN TBMEDICAMENTO AS MEDIC
+                ON
+                    REQUI.MEDICAMENTO_ID = MEDICAMENTO.ID";
 
-        private const string sqlSelecionarQuestoesDoTeste =
-            @"SELECT 
-	                Q.NUMERO, 
-	                Q.ENUNCIADO
-                FROM 
-	                TBQUESTAO AS Q INNER JOIN TBTESTE_TBQUESTAO AS TQ
-                ON 
-	                Q.NUMERO = TQ.QUESTAO_NUMERO
-                WHERE 
-	                TQ.TESTE_NUMERO = @TESTE_NUMERO";
 
-        private const string sqlExcluir =
-           @"DELETE FROM [TBTESTE_TBQUESTAO]
-		            WHERE
-			            [TESTE_NUMERO] = @NUMERO;
-            DELETE FROM [TBTESTE]
-		            WHERE
-			            [NUMERO] = @NUMERO";
+        public ValidationResult Inserir(Requisicao requisicao)
+        {
+            var validador = new ValidaRequisicao();
 
-        //public ValidationResult Inserir(Teste teste)
-        //{
-        //    ValidadorTeste validador = new ValidadorTeste();
+            var resultadoValidacao = validador.Validate(requisicao);
 
-        //    var resultadoValidacao = validador.Validate(teste);
+            if (resultadoValidacao.IsValid == false)
+                return resultadoValidacao;
 
-        //    if (resultadoValidacao.IsValid == false)
-        //        return resultadoValidacao;
+            SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
+            SqlCommand comandoInsercao = new SqlCommand(sqlInserir, conexaoComBanco);
 
-        //    SqlCommand comandoInsercao = new SqlCommand(sqlInserir, conexaoComBanco);
+            ConfigurarParametrosRequisicao(requisicao, comandoInsercao);
 
-        //    ConfigurarParametrosTeste(teste, comandoInsercao);
+            conexaoComBanco.Open();
+            var id = comandoInsercao.ExecuteScalar();
+            requisicao.Id = Convert.ToInt32(id);
 
-        //    conexaoComBanco.Open();
-        //    var id = comandoInsercao.ExecuteScalar();
-        //    teste.Numero = Convert.ToInt32(id);
+            conexaoComBanco.Close();
 
-        //    conexaoComBanco.Close();
+            return resultadoValidacao;
+        }
 
-        //    AdicionarQuestoesNoTeste(teste);
+        public ValidationResult Editar(Requisicao requisicao)
+        {
+            var validador = new ValidaRequisicao();
 
-        //    return resultadoValidacao;
-        //}
+            var resultadoValidacao = validador.Validate(requisicao);
 
-        //public ValidationResult Excluir(Teste registro)
-        //{
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
+            if (resultadoValidacao.IsValid == false)
+                return resultadoValidacao;
 
-        //    SqlCommand comandoExclusao = new SqlCommand(sqlExcluir, conexaoComBanco);
+            SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
-        //    comandoExclusao.Parameters.AddWithValue("NUMERO", registro.Numero);
+            SqlCommand comandoEdicao = new SqlCommand(sqlEditar, conexaoComBanco);
 
-        //    conexaoComBanco.Open();
-        //    int numeroRegistrosExcluidos = comandoExclusao.ExecuteNonQuery();
+            ConfigurarParametrosRequisicao(requisicao, comandoEdicao);
 
-        //    var resultadoValidacao = new ValidationResult();
+            conexaoComBanco.Open();
+            comandoEdicao.ExecuteNonQuery();
+            conexaoComBanco.Close();
 
-        //    if (numeroRegistrosExcluidos == 0)
-        //        resultadoValidacao.Errors.Add(new ValidationFailure("", "Não foi possível remover o registro"));
+            return resultadoValidacao;
+        }
 
-        //    conexaoComBanco.Close();
 
-        //    return resultadoValidacao;
-        //}
+        public void Excluir(Requisicao requisicao)
+        {
 
-        //public List<Teste> SelecionarTodos()
-        //{
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
+            SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
-        //    SqlCommand comandoSelecao = new SqlCommand(sqlSelecionarTodos, conexaoComBanco);
+            SqlCommand comandoExcluir = new SqlCommand(sqlExcluir, conexaoComBanco);
 
-        //    conexaoComBanco.Open();
-        //    SqlDataReader leitorTeste = comandoSelecao.ExecuteReader();
+            comandoExcluir.Parameters.AddWithValue("ID", requisicao.Id);
 
-        //    List<Teste> testes = new List<Teste>();
+            conexaoComBanco.Open();
+            comandoExcluir.ExecuteNonQuery();
+            conexaoComBanco.Close();
 
-        //    while (leitorTeste.Read())
-        //    {
-        //        Teste teste = ConverterParaTeste(leitorTeste);
+        }
 
-        //        testes.Add(teste);
-        //    }
+        public Requisicao SelecionarPorNumero(int id)
+        {
+            SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
-        //    conexaoComBanco.Close();
+            SqlCommand comandoSelecao = new SqlCommand(sqlSelecionarPorNumero, conexaoComBanco);
 
-        //    return testes;
-        //}
+            comandoSelecao.Parameters.AddWithValue("ID", id);
 
-        //public Teste SelecionarPorNumero(int numero)
-        //{
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
+            conexaoComBanco.Open();
+            SqlDataReader leitorRequisicao = comandoSelecao.ExecuteReader();
 
-        //    SqlCommand comandoSelecao = new SqlCommand(sqlSelecionarPorNumero, conexaoComBanco);
+            Requisicao requisicao = null;
+            if (leitorRequisicao.Read())
+                requisicao = ConverterParaRequisicao(leitorRequisicao);
 
-        //    comandoSelecao.Parameters.AddWithValue("NUMERO", numero);
+            conexaoComBanco.Close();
 
-        //    conexaoComBanco.Open();
-        //    SqlDataReader leitorTeste = comandoSelecao.ExecuteReader();
+            return requisicao;
+        }
 
-        //    Teste teste = null;
+        public List<Requisicao> SelecionarTodos()
+        {
+            SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
-        //    if (leitorTeste.Read())
-        //    {
-        //        teste = ConverterParaTeste(leitorTeste);
-        //    }
+            SqlCommand comandoSelecao = new SqlCommand(sqlSelecionarTodos, conexaoComBanco);
 
-        //    conexaoComBanco.Close();
+            conexaoComBanco.Open();
+            SqlDataReader leitorRequisicao = comandoSelecao.ExecuteReader();
 
-        //    CarregarQuestoes(teste);
+            List<Requisicao> requisicoes = new List<Requisicao>();
 
-        //    return teste;
-        //}
-
-        //private void AdicionarQuestoesNoTeste(Teste teste)
-        //{
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
-        //    conexaoComBanco.Open();
-
-        //    foreach (var questao in teste.Questoes)
-        //    {
-        //        SqlCommand comandoInsercao = new SqlCommand(sqlAdicionarQuestao, conexaoComBanco);
-
-        //        comandoInsercao.Parameters.AddWithValue("TESTE_NUMERO", teste.Numero);
-        //        comandoInsercao.Parameters.AddWithValue("QUESTAO_NUMERO", questao.Numero);
-
-        //        comandoInsercao.ExecuteNonQuery();
-        //    }
-
-        //    conexaoComBanco.Close();
-        //}
-
-        //private void ConfigurarParametrosTeste(Teste teste, SqlCommand comando)
-        //{
-        //    comando.Parameters.AddWithValue("NUMERO", teste.Numero);
-        //    comando.Parameters.AddWithValue("TITULO", teste.Titulo);
-        //    comando.Parameters.AddWithValue("DATAGERACAO", teste.DataGeracao);
-        //    comando.Parameters.AddWithValue("QUANTIDADEQUESTOES", teste.QuantidadeQuestoes);
-        //    comando.Parameters.AddWithValue("DISCIPLINA_NUMERO", teste.Disciplina.Numero);
-
-        //    if (teste.Materia != null)
-        //        comando.Parameters.AddWithValue("MATERIA_NUMERO", teste.Materia.Numero);
-        //    else
-        //        comando.Parameters.AddWithValue("MATERIA_NUMERO", DBNull.Value);
-
-        //    comando.Parameters.AddWithValue("PROVAO", teste.Provao);
-        //}
-
-        //private void CarregarQuestoes(Teste teste)
-        //{
-        //    SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
-
-        //    SqlCommand comandoSelecao = new SqlCommand(sqlSelecionarQuestoesDoTeste, conexaoComBanco);
-
-        //    comandoSelecao.Parameters.AddWithValue("TESTE_NUMERO", teste.Numero);
-
-        //    conexaoComBanco.Open();
-        //    SqlDataReader leitorQuestoes = comandoSelecao.ExecuteReader();
-
-        //    while (leitorQuestoes.Read())
-        //    {
-        //        Questao questao = ConverterParaQuestao(leitorQuestoes);
-
-        //        teste.Questoes.Add(questao);
-        //    }
-
-        //    conexaoComBanco.Close();
-        //}
-
-        //private Questao ConverterParaQuestao(SqlDataReader leitorQuestao)
-        //{
-        //    int numero = Convert.ToInt32(leitorQuestao["NUMERO"]);
-        //    string enunciado = Convert.ToString(leitorQuestao["ENUNCIADO"]);
-
-        //    return new Questao
-        //    {
-        //        Numero = numero,
-        //        Enunciado = enunciado
-        //    };
-        //}
-
-        //private Teste ConverterParaTeste(SqlDataReader leitorTeste)
-        //{
-        //    var numero = Convert.ToInt32(leitorTeste["NUMERO"]);
-        //    string titulo = Convert.ToString(leitorTeste["TITULO"]);
-        //    var provao = Convert.ToBoolean(leitorTeste["PROVAO"]);
-        //    var dataGeracao = Convert.ToDateTime(leitorTeste["DATAGERACAO"]);
-        //    var qtdQuestoes = Convert.ToInt32(leitorTeste["QUANTIDADEQUESTOES"]);
-
-        //    int numeroDisciplina = Convert.ToInt32(leitorTeste["DISCIPLINA_NUMERO"]);
-        //    string nomeDisciplina = Convert.ToString(leitorTeste["DISCIPLINA_NOME"]);
-
-        //    var disciplina = new Disciplina
-        //    {
-        //        Numero = numeroDisciplina,
-        //        Nome = nomeDisciplina
-        //    };
-
-        //    var teste = new Teste
-        //    {
-        //        Numero = numero,
-        //        Titulo = titulo,
-        //        Provao = provao,
-        //        DataGeracao = dataGeracao,
-        //        QuantidadeQuestoes = qtdQuestoes
-        //    };
-
-        //    Materia materia;
-
-        //    if (provao == false)
-        //    {
-        //        var numeroMateria = Convert.ToInt32(leitorTeste["MATERIA_NUMERO"]);
-        //        var nomeMateria = Convert.ToString(leitorTeste["MATERIA_NOME"]);
-        //        var serieMateria = (SerieMateriaEnum)leitorTeste["MATERIA_SERIE"];
-
-        //        materia = new Materia
-        //        {
-        //            Numero = numeroMateria,
-        //            Nome = nomeMateria,
-        //            Serie = serieMateria
-        //        };
-
-        //        materia.ConfigurarDisciplina(disciplina);
-        //        teste.ConfigurarMateria(materia);
-        //    }
-
-        //    teste.ConfigurarDisciplina(disciplina);
-
-        //    return teste;
-        //}
-
-        //#region métodos não implementados
-        //public ValidationResult Editar(Teste registro)
-        //{
-        //    return new ValidationResult();
-        //}
-        //#endregion
+            while (leitorRequisicao.Read())
+            {
+                Requisicao requisicao = ConverterParaRequisicao(leitorRequisicao);
+
+                requisicoes.Add(requisicao);
+            }
+
+            conexaoComBanco.Close();
+
+            return requisicoes;
+        }
+
+        #region Métodos privados
+
+        private void ConfigurarParametrosRequisicao(Requisicao requisicao, SqlCommand comando)
+        {
+            comando.Parameters.AddWithValue("ID", requisicao.Id);
+            comando.Parameters.AddWithValue("FUNCIONARIO_ID", requisicao.Funcionario.Id);
+            comando.Parameters.AddWithValue("PACIENTE_ID", requisicao.Paciente.Id);
+            comando.Parameters.AddWithValue("MEDICAMENTO_ID", requisicao.Medicamento.Id);
+            comando.Parameters.AddWithValue("QUANTIDADEMEDICAMENTO", requisicao.QtdMedicamento);
+            comando.Parameters.AddWithValue("DATA", requisicao.Data);
+        }
+
+        private Requisicao ConverterParaRequisicao(SqlDataReader leitorRequisicao)
+        {
+            var id = Convert.ToInt32(leitorRequisicao["ID"]);
+            var quantidadeMedicamento = Convert.ToInt32(leitorRequisicao["QUANTIDADEMEDICAMENTO"]);
+            var data = Convert.ToDateTime(leitorRequisicao["DATA"]);
+
+            var funcionarioId = Convert.ToInt32(leitorRequisicao["FUNCIONARIO_ID"]);
+            string funcionarioNome = Convert.ToString(leitorRequisicao["FUNCIONARIO_NOME"]);
+            string funcionarioLogin = Convert.ToString(leitorRequisicao["LOGIN"]);
+            string funcionarioSenha = Convert.ToString(leitorRequisicao["SENHA"]);
+
+            var pacienteId = Convert.ToInt32(leitorRequisicao["PACIENTE_ID"]);
+            string pacienteNome = Convert.ToString(leitorRequisicao["PACIENTE_NOME"]);
+            string cartaoSus = Convert.ToString(leitorRequisicao["CARTAOSUS"]);
+
+            var medicamentoId = Convert.ToInt32(leitorRequisicao["MEDICAMENTO_ID"]);
+            var medicamentoNome = Convert.ToString(leitorRequisicao["MEDICAMENTO_NOME"]);
+            var medicamentoDescricao = Convert.ToString(leitorRequisicao["DESCRICAO"]);
+            var medicamentoLote = Convert.ToString(leitorRequisicao["LOTE"]);
+            var medicamentoValidade = Convert.ToDateTime(leitorRequisicao["VALIDADE"]);
+            var medicamentoQuantidadeDisponivel = Convert.ToInt32(leitorRequisicao["QUANTIDADEDISPONIVEL"]);
+
+            Requisicao requisicao = new Requisicao();
+            requisicao.Id = id;
+            requisicao.QtdMedicamento = quantidadeMedicamento;
+            requisicao.Data = data;
+
+            requisicao.Funcionario = new Funcionario
+            {
+                Id = funcionarioId,
+                Nome = funcionarioNome,
+                Login = funcionarioLogin,
+                Senha = funcionarioSenha
+            };
+
+            requisicao.Paciente = new Paciente
+            {
+                Id = pacienteId,
+                Nome = pacienteNome,
+                CartaoSUS = cartaoSus
+            };
+
+            requisicao.Medicamento = new Medicamento
+            {
+                Id = medicamentoId,
+                Nome = medicamentoNome,
+                Descricao = medicamentoDescricao,
+                Lote = medicamentoLote,
+                Validade = medicamentoValidade,
+                QuantidadeDisponivel = medicamentoQuantidadeDisponivel
+            };
+            return requisicao;
+        }
+        #endregion
     }
 }
