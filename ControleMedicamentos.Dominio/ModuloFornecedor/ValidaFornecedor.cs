@@ -13,7 +13,7 @@ namespace ControleMedicamentos.Dominio.ModuloFornecedor
            .NotNull().NotEmpty().MinimumLength(3);
 
             RuleFor(x => x.Telefone)
-            .Telefone();
+            .Telefone().NotNull();
 
             RuleFor(x => x.Email)
             .EmailAddress(EmailValidationMode.AspNetCoreCompatible).NotNull().NotEmpty();

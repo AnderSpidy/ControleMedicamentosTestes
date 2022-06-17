@@ -11,6 +11,7 @@ namespace ControleMedicamentos.Dominio.Tests.ModuloFornecedor
     [TestClass]
     public class ValidaFornecedorTest
     {
+        
         [TestMethod]
         public void Nome_nao_deve_ser_nulo()
         {
@@ -21,7 +22,7 @@ namespace ControleMedicamentos.Dominio.Tests.ModuloFornecedor
             fornecedor.Email = "fornecedor@gmail.com";
             fornecedor.Cidade = "Curitiba";
             fornecedor.Estado = "PR";
-
+            
             ValidaFornecedor validadorFornecedor = new ValidaFornecedor();
 
             //action
@@ -131,7 +132,26 @@ namespace ControleMedicamentos.Dominio.Tests.ModuloFornecedor
             Assert.AreEqual(false, resultadoValidacao.IsValid);
         }
 
-       
+        [TestMethod]
+        public void Telefone_deve_ser_valido()
+        {
+            //arrange
+            Fornecedor fornecedor = new Fornecedor();
+            fornecedor.Nome = "Fornecedor";
+            fornecedor.Telefone = "(41)989899852-9870";
+            fornecedor.Email = "fornecedor@gmail.com";
+            fornecedor.Cidade = "Curitiba";
+            fornecedor.Estado = "PR";
+
+            ValidaFornecedor validadorFornecedor = new ValidaFornecedor();
+
+            //action
+            var resultadoValidacao = validadorFornecedor.Validate(fornecedor);
+
+            //assert
+            Assert.AreEqual(true, resultadoValidacao.IsValid);
+        }
+
 
         [TestMethod]
         public void Email_nao_deve_ser_nulo()

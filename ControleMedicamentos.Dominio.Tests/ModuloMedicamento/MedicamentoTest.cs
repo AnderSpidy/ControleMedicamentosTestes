@@ -18,5 +18,6 @@ namespace ControleMedicamentos.Dominio.Tests.ModuloMedicamento
 
             Assert.AreEqual("Doril - Tomou a dor Sumiu - abc-235", escritoMedicamento);
         }
+
     }
 }

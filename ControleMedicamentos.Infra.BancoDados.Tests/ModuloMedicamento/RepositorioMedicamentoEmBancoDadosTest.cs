@@ -24,7 +24,7 @@ namespace ControleMedicamento.Infra.BancoDados.Tests.ModuloMedicamento
         {
             //arrange
             //instanciando objeto fornecedor para medicamento
-            Fornecedor fornecedor = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
+            Fornecedor fornecedor = new Fornecedor("Julio", "(41)9852-9870", "julinho@gmail.com", "Curitiba", "Parana");
             var repositorioFornecedor = new RepositorioFornecedorEmBancoDados();
             repositorioFornecedor.Inserir(fornecedor);
 
@@ -51,7 +51,7 @@ namespace ControleMedicamento.Infra.BancoDados.Tests.ModuloMedicamento
         {
             //arrange
             //instanciando objeto fornecedor para medicamento
-            Fornecedor fornecedor = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
+            Fornecedor fornecedor = new Fornecedor("Julio", "4199852-9870", "julinho@gmail.com", "Curitiba", "Parana");
             var repositorioFornecedor = new RepositorioFornecedorEmBancoDados();
             repositorioFornecedor.Inserir(fornecedor);
 
@@ -113,7 +113,7 @@ namespace ControleMedicamento.Infra.BancoDados.Tests.ModuloMedicamento
         {
             //arrange
                 //instanciando objeto fornecedor para medicamento
-            Fornecedor fornecedor = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
+            Fornecedor fornecedor = new Fornecedor("Julio", "4199852-9870", "julinho@gmail.com", "Curitiba", "Parana");
             var repositorioFornecedor = new RepositorioFornecedorEmBancoDados();
             repositorioFornecedor.Inserir(fornecedor);
 
@@ -141,9 +141,9 @@ namespace ControleMedicamento.Infra.BancoDados.Tests.ModuloMedicamento
         {
             //arrange
                 //instanciando no repositorio os fornecedores
-            var fornecedor1 = new Fornecedor("Julio", "41998529870", "julinho@gmail.com", "Curitiba", "Parana");
-            var fornecedor2 = new Fornecedor("Carlinhos", "40028922", "carlinhos@gmail.com", "Lages", "Santa Catarina");
-            var fornecedor3 = new Fornecedor("Baptista", "4989996523", "baptista@gmail.com", "Porto Alegre", "Rio Grande do Sul");
+            var fornecedor1 = new Fornecedor("Julio", "4199852-9870", "julinho@gmail.com", "Curitiba", "Parana");
+            var fornecedor2 = new Fornecedor("Carlinhos", "114002-8922", "carlinhos@gmail.com", "Lages", "Santa Catarina");
+            var fornecedor3 = new Fornecedor("Baptista", "(49)8999-6523", "baptista@gmail.com", "Porto Alegre", "Rio Grande do Sul");
             var repositorioFornecedor = new RepositorioFornecedorEmBancoDados();
             repositorioFornecedor.Inserir(fornecedor1);
             repositorioFornecedor.Inserir(fornecedor2);

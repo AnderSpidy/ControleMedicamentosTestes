@@ -78,49 +78,41 @@ namespace ControleMedicamentos.Infra.BancoDados.ModuloRequisicao
                 MEDICAMENTO.[QUANTIDADEDISPONIVEL]
             FROM
                 [TBREQUISICAO] AS REQUISICAO INNER JOIN [TBFUNCIONARIO] AS FUNCIONARIO
-                    ON REQUISICAO.FUNCIONARIO_ID = FUNCIONARIO.ID
+                    ON REQUISICAO.FUNCIONARIO_ID = FUNCIONARIO.[ID]
                 INNER JOIN [TBPACIENTE] AS PACIENTE 
-                    ON REQUISICAO.PACIENTE_ID = PACIENTE.ID
+                    ON REQUISICAO.PACIENTE_ID = PACIENTE.[ID]
                 INNER JOIN [TBMEDICAMENTO] AS MEDICAMENTO
-                    ON REQUISICAO.MEDICAMENTO_ID = MEDICAMENTO.ID
+                    ON REQUISICAO.MEDICAMENTO_ID = MEDICAMENTO.[ID]
             WHERE
                 REQUISICAO.[ID] = @ID
                 ";
 
 
         private const string sqlSelecionarTodos =
-             @"SELECT        
-	                REQUI.ID,
-	                REQUI.FUNCIONARIO_ID, 
-	                REQUI.PACIENTE_ID, 
-	                REQUI.MEDICAMENTO_ID, 	
- 	                REQUI.QUANTIDADEMEDICAMENTO,
-	                REQUI.DATA, 
-	                FUNC.NOME AS FUNCIONARIO_NOME,
-	                FUNC.LOGIN, 
-	                FUNC.SENHA,
-	                PACIENTE.NOME AS PACIENTE_NOME,
-                    PACIENTE.CARTAOSUS,
-                    MEDIC.NOME AS MEDICAMENTO_NOME,
-                    MEDIC.DESCRICAO,
-                    MEDIC.LOTE,
-                    MEDIC.VALIDADE,
-                    MEDIC.QUANTIDADEDISPONIVEL,
-                    
-                FROM  
-	                TBREQUISICAO AS REQUI
-
-                INNER JOIN TBFUNCIONARIO AS FUNC
-                ON 
-                    REQUI.FUNCIONARIO_ID = FUNCIONARIO.ID
-
-                INNER JOIN TBPACIENTE AS PACIENTE
-                ON 
-                    REQUI.PACIENTE_ID = PACIENTE.ID
-
-                INNER JOIN TBMEDICAMENTO AS MEDIC
-                ON
-                    REQUI.MEDICAMENTO_ID = MEDICAMENTO.ID";
+             @"SELECT 
+                REQUISICAO.[ID],       
+                REQUISICAO.[FUNCIONARIO_ID],
+                REQUISICAO.[PACIENTE_ID],
+                REQUISICAO.[MEDICAMENTO_ID],             
+                REQUISICAO.[QUANTIDADEMEDICAMENTO],      
+                REQUISICAO.[DATA],   
+                FUNCIONARIO.[NOME] AS FUNCIONARIO_NOME,              
+                FUNCIONARIO.[LOGIN],                    
+                FUNCIONARIO.[SENHA], 
+                PACIENTE.[NOME] AS PACIENTE_NOME,
+                PACIENTE.[CARTAOSUS],
+                MEDICAMENTO.[NOME] AS MEDICAMENTO_NOME,
+                MEDICAMENTO.[DESCRICAO],
+                MEDICAMENTO.[LOTE],
+                MEDICAMENTO.[VALIDADE],
+                MEDICAMENTO.[QUANTIDADEDISPONIVEL]
+            FROM
+                [TBREQUISICAO] AS REQUISICAO INNER JOIN [TBFUNCIONARIO] AS FUNCIONARIO
+                    ON REQUISICAO.FUNCIONARIO_ID = FUNCIONARIO.[ID]
+                INNER JOIN [TBPACIENTE] AS PACIENTE 
+                    ON REQUISICAO.PACIENTE_ID = PACIENTE.[ID]
+                INNER JOIN [TBMEDICAMENTO] AS MEDICAMENTO
+                    ON REQUISICAO.MEDICAMENTO_ID = MEDICAMENTO.[ID]";
 
 
         public ValidationResult Inserir(Requisicao requisicao)
@@ -185,7 +177,7 @@ namespace ControleMedicamentos.Infra.BancoDados.ModuloRequisicao
 
         }
 
-        public Requisicao SelecionarPorNumero(int id)
+        public Requisicao SelecionarPorId(int id)
         {
             SqlConnection conexaoComBanco = new SqlConnection(enderecoBanco);
 
